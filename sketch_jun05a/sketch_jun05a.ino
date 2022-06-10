@@ -1,21 +1,14 @@
 #include <ros.h>
 #include <std_msgs/Int32.h>
 #include <Servo.h>
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-#include <avr/power.h>
-#endif
-#define LED_PIN    PD5
-#define LED_COUNT  21
 
 Servo kanan, kiri, sayap;
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 ros::NodeHandle nh;
 int tes_pesan = 0;
 
-int max_sayap = 60;
-int min_sayap = 180;
+int max_sayap = 50;
+int min_sayap = 100;
 int count_5 = 0;
 
 void messageCb( const std_msgs::Int32& msg ) {
@@ -37,55 +30,8 @@ void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
   clock_prescale_set(clock_div_1);
 #endif
-
-  strip.begin();
-  strip.show();
-  strip.setBrightness(50);
+  
 }
-
-//LED_function
-
-void theaterChase(uint32_t color, int wait) {
-  for (int a = 0; a < 10; a++) {
-    for (int b = 0; b < 3; b++) {
-      strip.clear();
-      for (int c = b; c < strip.numPixels(); c += 3) {
-        strip.setPixelColor(c, color);
-      }
-      strip.show();
-      delay(wait);
-    }
-  }
-}
-
-void rainbow(int wait) {
-  for (long firstPixelHue = 0; firstPixelHue < 5 * 65536; firstPixelHue += 256) {
-    for (int i = 0; i < strip.numPixels(); i++) {
-      int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
-      strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
-    }
-    strip.show();
-    delay(wait);
-  }
-}
-
-void theaterChaseRainbow(int wait) {
-  int firstPixelHue = 0;
-  for (int a = 0; a < 30; a++) {
-    for (int b = 0; b < 3; b++) {
-      strip.clear();
-      for (int c = b; c < strip.numPixels(); c += 3) {
-        int      hue   = firstPixelHue + c * 65536L / strip.numPixels();
-        uint32_t color = strip.gamma32(strip.ColorHSV(hue));
-        strip.setPixelColor(c, color);
-      }
-      strip.show();
-      delay(wait);
-      firstPixelHue += 65536 / 90;
-    }
-  }
-}
-
 
 //servo_function
 
@@ -189,9 +135,10 @@ void servoSubs(int msg) {
 }
 
 void sayapSub(int msg) {
-  if (msg == 10) zerofull(700, 5);
-  else if (msg == 11) sayapBuka();
-  else if (msg == 12) sayapTutup();
+  if (msg == 7) zerofull(700, 5);
+  else if (msg == 8) sayapBuka();
+  else if (msg == 9) sayapTutup();
+  else if (msg == 10) 
 }
 
 // end of servo function
@@ -206,8 +153,7 @@ void loop() {
 
   servoSubs(tes_pesan);
   sayapSub(tes_pesan);
-  ledstripSubs(tes_pesan);
-
+  
   nh.spinOnce();
   delay(10);
 }
